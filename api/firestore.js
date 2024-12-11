@@ -19,12 +19,14 @@ async function getUserByUsernamePassword(username, password) {
 
 // API
 async function userLoginPostHandler(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
     const user = await getUserByUsernamePassword(req.body.username, req.body.password)
     if (!user) {
         res.send(401);
     }
     else {
         res.send(user);
+        
     }
     
 }

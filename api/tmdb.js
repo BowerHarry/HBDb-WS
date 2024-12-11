@@ -18,7 +18,23 @@ async function getConfiguration(apiUser) {
     return json
 }
 
+async function authKeyRequestHandler(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    const url = 'https://api.themoviedb.org/3/authentication';
+    const options = {
+        method: 'GET',
+        headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${req.body.APIKey}`
+        }
+    };
+
+    const response = await fetch(url, options);
+    res.send(response.status)
+}
+
 module.exports = {
     tmdbPostHandler: postRequestHandler,
-    getConfiguration
+    getConfiguration,
+    authKeyPostHandler: authKeyRequestHandler
 };

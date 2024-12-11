@@ -11,7 +11,7 @@ const { requestGetHandler, requestPostHandler } = require('./routes/request');
 const { homeGetHandler } = require('./routes/home');
 
 // API methods
-const {getUserByUsernamePassword} = require('./api/firestore');
+const {getUserByUsernamePassword, userLoginPostHandler} = require('./api/firestore');
 
 // Home page
 app.get('/', (req, res) => homeGetHandler(req, res, apiUser));
@@ -19,6 +19,16 @@ app.get('/', (req, res) => homeGetHandler(req, res, apiUser));
 // Request access page
 app.get('/request', requestGetHandler);
 app.post('/request', requestPostHandler);
+
+// Login auth
+app.post('/login', userLoginPostHandler)
+
+// TMDb API
+const {tmdbPostHandler} = require('./api/tmdb');
+const {topMoviePostersPostHandler} = require('./api/tmdb/movies');
+
+app.post('/tmdb', tmdbPostHandler);
+app.post('/tmdb/movies/posters', (req, res) => topMoviePostersPostHandler(req, res, apiUser))
 
 // Startup - API user fetched on startup. Once retrieved is accessible by all later processes.
 async function onStartup() {

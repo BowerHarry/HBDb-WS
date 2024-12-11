@@ -24,10 +24,11 @@ app.post('/request', requestPostHandler);
 app.post('/login', userLoginPostHandler)
 
 // TMDb API
-const {tmdbPostHandler} = require('./api/tmdb');
+const {tmdbPostHandler, authKeyPostHandler} = require('./api/tmdb');
 const {topMoviePostersPostHandler} = require('./api/tmdb/movies');
 
 app.post('/tmdb', tmdbPostHandler);
+app.post('/tmdb/auth', authKeyPostHandler);
 app.post('/tmdb/movies/posters', (req, res) => topMoviePostersPostHandler(req, res, apiUser))
 
 // Startup - API user fetched on startup. Once retrieved is accessible by all later processes.

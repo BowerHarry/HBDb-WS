@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HBDb - Reset your password</title>
+  </head>
+  <body>
+    <h2>Reset your password</h2>
+    <form method="POST" action="/resetpassword">
+      <input type="hidden" name="token" id="token">
+      <div>
+        <input type="password" name="password" placeholder="New password" required>
+      </div>
+      <div>
+        <input type="password" name="passwordConfirm" placeholder="Confirm password" required>
+      </div>
+      <div>
+        <button type="submit">Reset Password</button>
+      </div>
+    </form>
+    <script>
+      // Get token from URL and set it in the hidden input
+      const urlParams = new URLSearchParams(window.location.search);
+      document.getElementById('token').value = urlParams.get('token');
+    </script>
+  </body>
+</html>

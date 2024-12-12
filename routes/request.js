@@ -1,30 +1,11 @@
 const path = require('path');
-const nodemailer = require("nodemailer");
+const {sendEmail} = require('../helper-functions');
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
-  
-  async function sendEmail(email, subject, body) {
-      const info = await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: subject, 
-          text: body, 
-        }).catch(console.error);
-  
-        return info ? info.messageId : null;
-  }
 
 function getRequestHandler(req, res) {
     res.sendFile(path.join(__dirname, '../views/form.html'));
 }
+
 
 async function postRequestHandler(req, res) {
     if (await sendEmail(process.env.EMAIL_USER, 'A new user has requested access to HBDb',
@@ -43,5 +24,6 @@ A new user has requested access to HBDb.
 
 module.exports = {
     requestGetHandler: getRequestHandler,
-    requestPostHandler: postRequestHandler
+    requestPostHandler: postRequestHandler,
+    sendEmail
 };

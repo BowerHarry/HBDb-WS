@@ -9,9 +9,11 @@ app.use(express.urlencoded({extended: true}));
 // Route methods
 const { requestGetHandler, requestPostHandler } = require('./routes/request');
 const { homeGetHandler } = require('./routes/home');
+const { resetPostHandler, resetPasswordGetHandler, resetPasswordPostHandler } = require('./routes/password-reset');
+const { userLoginPostHandler } = require('./routes/login');
 
 // API methods
-const {getUserByUsernamePassword, userLoginPostHandler} = require('./api/firestore');
+const {getUserByUsernamePassword} = require('./api/firestore');
 
 // Home page
 app.get('/', (req, res) => homeGetHandler(req, res, apiUser));
@@ -22,6 +24,9 @@ app.post('/request', requestPostHandler);
 
 // Login auth
 app.post('/login', userLoginPostHandler)
+app.post('/reset', resetPostHandler);
+app.get('/resetpassword', resetPasswordGetHandler);
+app.post('/resetpassword', resetPasswordPostHandler);
 
 // TMDb API
 const {tmdbPostHandler, authKeyPostHandler} = require('./api/tmdb');

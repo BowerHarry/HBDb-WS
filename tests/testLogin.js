@@ -5,7 +5,7 @@ async function testLogin() {
 
     var params = new URLSearchParams();
     params.append('username', 'testLogin');
-    // params.append('password', 'a702af5582f62f26a010791425fbe42fe05a5f5817dabb5c4be734466ecfe254');
+    // params.append('password', '9f735e0df9a1ddc702bf0a1a7b83033f9f7153a00c29de82cedadc9957289b05');
     params.append('password', 'incorrect password');
 
     const response = await axios.post('http://localhost:8080/login', params,

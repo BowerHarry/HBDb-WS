@@ -1,3 +1,28 @@
+const nodemailer = require("nodemailer");
+
+const rootUrl = process.env.LIVE_MODE == "true" ? process.env.ROOT_URL : process.env.TEST_URL;
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  
+  async function sendEmail(email, subject, body) {
+      const info = await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: subject, 
+          text: body, 
+        }).catch(console.error);
+  
+        return info ? info.messageId : null;
+  }
+
 async function sha256(message) {
     // encode as UTF-8
     const msgBuffer = new TextEncoder().encode(message);                    
@@ -27,6 +52,7 @@ class user {
     googleAPIKey;
     mdblistAPIKey;
     scrapenetworkAPIKey;
+    active;
 
     constructor(json) {
         this.username = json.username;
@@ -34,11 +60,14 @@ class user {
         this.googleAPIKey = json.googleAPIKey;
         this.mdblistAPIKey = json.mdblistAPIKey;
         this.scrapenetworkAPIKey = json.scrapenetworkAPIKey;
+        this.active = json.active;
     }
 }
 
 module.exports = {
     sha256,
     user,
-    shuffleArray
+    shuffleArray,
+    sendEmail,
+    rootUrl
 };

@@ -1,8 +1,3 @@
-async function postRequestHandler(req, res) {
-    console.log(req);
-    res.send('Thanks for your request!');
-}
-
 async function getConfiguration(apiUser) {
     const url = 'https://api.themoviedb.org/3/configuration';
     const options = {
@@ -34,7 +29,6 @@ async function authKeyRequestHandler(req, res) {
 }
 
 module.exports = {
-    tmdbPostHandler: postRequestHandler,
     getConfiguration,
     authKeyPostHandler: authKeyRequestHandler
 };

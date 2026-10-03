@@ -51,7 +51,6 @@ class user {
     tmdbAPIKey;
     googleAPIKey;
     mdblistAPIKey;
-    providerAPIKey;
     active;
 
     constructor(json) {
@@ -59,7 +58,6 @@ class user {
         this.tmdbAPIKey = json.tmdbAPIKey;
         this.googleAPIKey = json.googleAPIKey;
         this.mdblistAPIKey = json.mdblistAPIKey;
-        this.providerAPIKey = json.providerAPIKey;
         this.active = json.active;
     }
 }

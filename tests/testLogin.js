@@ -1,26 +1,16 @@
-const axios = require('axios');
-
+// Manual check against a locally running server: expects a 401.
 async function testLogin() {
   try {
+    const response = await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: 'testLogin', password: 'incorrect password'})
+    });
 
-    var params = new URLSearchParams();
-    params.append('username', 'testLogin');
-    // params.append('password', 'REMOVED_PASSWORD_HASH');
-    params.append('password', 'incorrect password');
-
-    const response = await axios.post('http://localhost:8080/login', params,
-      {headers:{'Content-Type': 'application/x-www-form-urlencoded'}}
-    )
-
-
-    console.log('Response:', response.data);
+    console.log('Response:', response.status, await response.text());
   } catch (error) {
-    if (error.response) {
-      console.log('Error:', error.response.status, error.response.data);
-    } else {
-      console.log('Error:', error.message);
-    }
+    console.log('Error:', error.message);
   }
 }
 
-testLogin(); 
+testLogin();

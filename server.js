@@ -2,47 +2,44 @@
 require('dotenv').config();
 
 const express = require('express');
-const {user} = require('./helper-functions');
+const { asyncHandler } = require('./helper-functions');
+const { cors } = require('./middleware/cors');
+const { requireSession } = require('./middleware/auth');
+
 const app = express();
+app.use(cors);
+app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 // Route methods
 const { requestGetHandler, requestPostHandler } = require('./routes/request');
 const { resetPostHandler, resetPasswordGetHandler, resetPasswordPostHandler } = require('./routes/password-reset');
-const { userLoginPostHandler } = require('./routes/login');
-
-// API methods
-const {getUserByUsernamePassword} = require('./api/firestore');
+const { userLoginPostHandler, userLogoutPostHandler } = require('./routes/login');
 
 // Request access page
 app.get('/request', requestGetHandler);
-app.post('/request', requestPostHandler);
+app.post('/request', asyncHandler(requestPostHandler));
 
 // Login auth
-app.post('/login', userLoginPostHandler)
-app.post('/reset', resetPostHandler);
-app.get('/resetpassword', resetPasswordGetHandler);
-app.post('/resetpassword', resetPasswordPostHandler);
+app.post('/login', asyncHandler(userLoginPostHandler));
+app.post('/logout', requireSession, asyncHandler(userLogoutPostHandler));
+app.post('/reset', asyncHandler(resetPostHandler));
+app.get('/resetpassword', asyncHandler(resetPasswordGetHandler));
+app.post('/resetpassword', asyncHandler(resetPasswordPostHandler));
 
 // TMDb API
-const {authKeyPostHandler} = require('./api/tmdb');
 const {topMoviePostersPostHandler} = require('./api/tmdb/movies');
 
-app.post('/tmdb/auth', authKeyPostHandler);
-app.post('/tmdb/movies/posters', (req, res) => topMoviePostersPostHandler(req, res, apiUser))
+app.post('/tmdb/movies/posters', asyncHandler(topMoviePostersPostHandler));
 
-// Startup - API user fetched on startup. Once retrieved is accessible by all later processes.
-async function onStartup() {
-    apiUser = await getUserByUsernamePassword(process.env.API_USER, process.env.API_PASSWORD);
-}
-let apiUser;
-onStartup();
+// Anything a handler throws ends up here
+app.use((error, req, res, next) => {
+    console.error(error);
+    res.sendStatus(error.status || 500);
+});
 
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
-
-
-

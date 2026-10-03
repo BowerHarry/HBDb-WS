@@ -18,12 +18,11 @@ A new user has requested access to HBDb.
 `)) {
         res.send('Thanks for your request! We will get back to you shortly.');
     } else {
-        res.send('Sorry your request has not been submitted. Get in contact with us via our GitHub page (https://github.com/BowerHarry/HBDb-WS).');
+        res.status(502).send('Sorry your request has not been submitted. Get in contact with us via our GitHub page (https://github.com/BowerHarry/HBDb-WS).');
     }
 }
 
 module.exports = {
     requestGetHandler: getRequestHandler,
-    requestPostHandler: postRequestHandler,
-    sendEmail
+    requestPostHandler: postRequestHandler
 };

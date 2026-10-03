@@ -1,15 +1,15 @@
 const path = require('path');
 const crypto = require('crypto');
-const { getUsersByEmail, storeResetToken, getResetToken, updateUserPassword, markTokenAsUsed } = require('../api/firestore');
-const { sendEmail, rootUrl } = require('../helper-functions');
+const { getUsersByEmail, storeResetToken, getResetToken, setUserPassword, markTokenAsUsed, deleteSessionsForUser } = require('../api/firestore');
+const { sendEmail, rootUrl, sha256, hashPassword } = require('../helper-functions');
+const { forgetUser } = require('../middleware/auth');
 
 function generateResetToken() {
     return crypto.randomBytes(12).toString('hex'); // 24 character hex string
 }
 
 async function verifyResetToken(token) {
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const tokenData = await getResetToken(hashedToken);
+    const tokenData = await getResetToken(sha256(token));
     
     if (!tokenData) {
         return null;
@@ -28,11 +28,14 @@ async function verifyResetToken(token) {
     };
 }
 
+// Always answers 200 so the response doesn't reveal which addresses have accounts.
 async function resetPostHandler(req, res) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    if (typeof req.body.email !== 'string') {
+        return res.sendStatus(400);
+    }
     const users = await getUsersByEmail(req.body.email)
     if (users.empty || users.docs.length > 1) {
-        res.sendStatus(users.empty ? 401 : 403);
+        res.sendStatus(200);
     }
     else {
         const user = users.docs[0].data();
@@ -81,10 +84,14 @@ async function resetPasswordPostHandler(req, res) {
     }
     
     try {
-        // Hash the new password before storing
-        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-        await updateUserPassword(tokenData.email, hashedPassword);
+        const users = await getUsersByEmail(tokenData.email);
+        const userDoc = users.docs[0];
+        await setUserPassword(userDoc.id, await hashPassword(password));
         await markTokenAsUsed(tokenData.tokenId);
+
+        // Sign the account out everywhere
+        await deleteSessionsForUser(userDoc.data().username);
+        forgetUser(userDoc.data().username);
         
         const subject = 'HBDb - Your password has been reset';
         const body = `Your password has been reset. If you did not request this, please contact support.`;

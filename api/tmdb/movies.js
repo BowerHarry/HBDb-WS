@@ -1,8 +1,21 @@
 const {getConfiguration} = require('../tmdb');
 const {shuffleArray} = require('../../helper-functions');
+const {getUserByUsername} = require('../firestore');
 
-async function topMoviePostersPostHandler(req, res, apiUser) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+// The login page's posters are fetched with a designated account's TMDb key.
+let apiUser;
+async function getApiUser() {
+    if (!apiUser) {
+        apiUser = await getUserByUsername(process.env.API_USER);
+    }
+    return apiUser;
+}
+
+async function topMoviePostersPostHandler(req, res) {
+    const apiUser = await getApiUser();
+    if (!apiUser) {
+        return res.sendStatus(503);
+    }
     const config = await getConfiguration(apiUser)
     const options = {
         method: 'GET',

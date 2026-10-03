@@ -27,10 +27,25 @@ app.post('/reset', asyncHandler(resetPostHandler));
 app.get('/resetpassword', asyncHandler(resetPasswordGetHandler));
 app.post('/resetpassword', asyncHandler(resetPasswordPostHandler));
 
-// TMDb API
-const {topMoviePostersPostHandler} = require('./api/tmdb/movies');
+// Sign-in page posters (public)
+const { postersGetHandler } = require('./routes/posters');
+app.get('/api/posters', asyncHandler(postersGetHandler));
 
-app.post('/tmdb/movies/posters', asyncHandler(topMoviePostersPostHandler));
+// Film API. Everything below needs a session; calls are made with the signed-in user's API keys.
+const films = require('./routes/films');
+const lists = require('./routes/lists');
+const api = express.Router();
+api.use(requireSession);
+api.get('/films/search', asyncHandler(films.searchGetHandler));
+api.get('/films/:id(\\d+)', asyncHandler(films.filmGetHandler));
+api.get('/films/:id(\\d+)/similar', asyncHandler(films.similarGetHandler));
+api.put('/films/:id(\\d+)/rating', asyncHandler(films.ratingPutHandler));
+api.delete('/films/:id(\\d+)/rating', asyncHandler(films.ratingDeleteHandler));
+api.get('/watchlist', asyncHandler(lists.watchlistGetHandler));
+api.put('/watchlist/:id(\\d+)', asyncHandler(lists.watchlistPutHandler));
+api.delete('/watchlist/:id(\\d+)', asyncHandler(lists.watchlistDeleteHandler));
+api.get('/history', asyncHandler(lists.historyGetHandler));
+app.use('/api', api);
 
 // Anything a handler throws ends up here
 app.use((error, req, res, next) => {
